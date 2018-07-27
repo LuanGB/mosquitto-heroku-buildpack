@@ -1,4 +1,4 @@
 #!/bin/sh
 
-echo "MQTT - App"
+echo "MQTT"
 exit 0
