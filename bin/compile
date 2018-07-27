@@ -1,0 +1,47 @@
+#!/bin/sh
+
+#Install CMake if not present
+if ! [ -x "$(command -v cmake)" ]; then
+  cd $2
+  
+  wget https://cmake.org/files/v3.12/cmake-3.12.0.tar.gz
+  tar -xf cmake-3.12.0.tar.gz
+  cd cmake-3.12.0
+  ./bootstrap && make && make install
+
+  cd -
+fi
+
+#Install Lib Web Sockets if not present
+if ! [ -x "$(command -v libwebsockets-test-server)" ]; then
+  cd $2
+  
+  git clone https://libwebsockets.org/repo/libwebsockets
+  cd libwebsockets
+  cmake .
+  make && make install
+  ln -s /usr/local/lib/libwebsockets.so.13 /lib/libwebsockets.so.13
+  
+  cd -
+fi
+
+#Install Mosquitto
+wget http://mosquitto.org/files/source/mosquitto-1.5.tar.gz
+tar -xf mosquitto-1.5.tar.gz
+cd mosquitto-1.5
+sed -i 's/WITH\_WEBSOCKETS\:\=no/WITH\_WEBSOCKETS\:\=yes/' config.mk
+make && make install
+
+#Run Mosquitto
+mkdir -p $HOME/mqtt/ws/http
+
+cat > $1/mosquitto_ws.conf << EOF
+listener 1883
+protocol mqtt
+
+listener 9001
+protocol websockets
+http_dir $HOME/mqtt/ws/http
+EOF
+
+mosquitto -v -c $1/mosquitto_ws.conf &
