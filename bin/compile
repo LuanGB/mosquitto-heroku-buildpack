@@ -19,11 +19,15 @@ listener 1883
 protocol mqtt
 EOF
 
-echo "Starting server..."
-src/mosquitto -v -c $1/mosquitto_ws.conf &
-echo "Server Started!"
+echo "Writing profile.d/mqtt.sh..."
 
-cat > ${HOME}/.profile.d/mqtt.sh << EOF
-export MQTT_HOME=$1/bin
-export PATH=$1/src/mosquitto:$PATH
+export MQTT_HOME=$(pwd)
+
+cat > $HOME/.profile.d/mqtt.sh << EOF
+export PATH=$MQTT_HOME/src/:$PATH
+export PATH=$MQTT_HOME/client/:$PATH
 EOF
+
+echo "Starting Server..."
+src/mosquitto -v -c $1/mosquitto_ws.conf &
+echo "Server Started..."
