@@ -1,9 +1,11 @@
 #Install Mosquitto
+
 wget http://mosquitto.org/files/source/mosquitto-1.5.tar.gz
 tar -xf mosquitto-1.5.tar.gz
-cd mosquitto-1.5
 
-make install
+cd mosquitto-1.5
+sed -i -e "s/WITH_UUID\:\=yes/WITH_UUID\:\=no/" ./config.mk
+make
 
 #Run Mosquitto
 mkdir -p $HOME/mqtt/ws/http
@@ -15,4 +17,6 @@ protocol mqtt
 http_dir $HOME/mqtt/ws/http
 EOF
 
-mosquitto -v -c $1/mosquitto_ws.conf &
+echo "Starting server..."
+src/mosquitto -v -c $1/mosquitto_ws.conf &
+echo "Done!"
