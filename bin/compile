@@ -1,22 +1,29 @@
 #Install Mosquitto
 
+cd $1
+
+echo "Getting mosquitto-1.5.tar.gz..."
+
 wget http://mosquitto.org/files/source/mosquitto-1.5.tar.gz
+
+echo "Unpacking mosquitto-1.5.tar.gz..."
 tar -xf mosquitto-1.5.tar.gz
 
+echo "Installing Mosquitto 1.5..."
 cd mosquitto-1.5
 sed -i -e "s/WITH_UUID\:\=yes/WITH_UUID\:\=no/" ./config.mk
 make -s
 
-#Run Mosquitto
-mkdir -p $HOME/mqtt/ws/http
-
 cat > $1/mosquitto_ws.conf << EOF
 listener 1883
 protocol mqtt
-
-http_dir $HOME/mqtt/ws/http
 EOF
 
 echo "Starting server..."
 src/mosquitto -v -c $1/mosquitto_ws.conf &
-echo "Done!"
+echo "Server Started!"
+
+cat > ${HOME}/.profile.d/mqtt.sh << EOF
+export MQTT_HOME=$1/bin
+export PATH=$1/src/mosquitto:$PATH
+EOF
